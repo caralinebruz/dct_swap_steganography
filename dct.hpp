@@ -68,11 +68,11 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 			auto px = (x - 1) * block_width;
 			auto py = (y - 1) * block_height;
 
-			cout << "Rect( " << endl;
-			cout << "px = " << endl << " "  << px << endl << endl;
-			cout << "py = " << endl << " "  << py << endl << endl;
-			cout << "block_width = " << endl << " "  << block_width << endl << endl;
-			cout << "block_height = " << endl << " "  << block_height << endl << endl;
+			// cout << "Rect( " << endl;
+			// cout << "px = " << endl << " "  << px << endl << endl;
+			// cout << "py = " << endl << " "  << py << endl << endl;
+			// cout << "block_width = " << endl << " "  << block_width << endl << endl;
+			// cout << "block_height = " << endl << " "  << block_height << endl << endl;
 
 			// Mat (const Mat &m, const Rect &roi) -> pointer to ROI
 			// selects a region of interest 
@@ -123,14 +123,24 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 			auto val = 0;
 			if (i < size)
 			{
+
+				auto t1 = i % 8;
 				// value in [0,1]
 				val = (text[i / 8] & 1 << i % 8) >> i % 8;
 
+
+				auto letter = text[i];
+				// if letter is L, 
+				auto test = letter / 8;
+
+				cout << "letter = " << endl << " "  << letter << endl << endl;
+				cout << "test = " << endl << " "  << t1 << endl << endl;
 				cout << "val = " << endl << " "  << val << endl << endl;
 
 				i++;
 			}
 
+			// when val == 0 , set b > a
 			if (val == 0)
 			{
 				if (a > b)
@@ -138,6 +148,7 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 					swap(a, b);
 				}
 			}
+			// when val == 1 , set b < a
 			else
 			{
 				if (a < b)
@@ -145,23 +156,6 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 					swap(a, b);
 				}
 			}
-
-			// // unclear why this is done.
-			// if (a > b)
-			// {
-			// 		// 30 - (2) / 2 = 9
-			// 		// a = a + 9
-			// 		// b = b - 9
-			// 	auto d = (intensity - (a - b)) / 2;
-			// 	     a = a + d;
-			// 	     b = b - d;
-			// }
-			// else
-			// {
-			// 	auto d = (intensity - (b - a)) / 2;
-			// 	     a = a - d;
-			// 	     b = b + d;
-			// }
 
 			trans.at<float>(6, 7) = a;
 			trans.at<float>(5, 1) = b;
@@ -210,12 +204,15 @@ inline std::string decode_dct(const cv::Mat& img, int channel = 0)
 
 	auto i = 0;
 	string bits(grid_width * grid_height / 8, 0);
+	cout << "bits" << endl << " "  << bits << endl << endl;
 
 	Mat imgfp;
 	img.convertTo(imgfp, CV_32F);
 
 	vector<Mat> planes;
 	split(imgfp, planes);
+
+
 
 	for (int x = 1; x < grid_width; x++)
 	{
@@ -232,9 +229,26 @@ inline std::string decode_dct(const cv::Mat& img, int channel = 0)
 			auto a = trans.at<float>(6, 7);
 			auto b = trans.at<float>(5, 1);
 
+			auto val = 0;
+
+
+			// if a > b , should produce 1
 			if (a > b)
 			{
+				val = i % 8;
+
+
+
+				// x |= y   same as    x = x|y
 				bits[i / 8] |= 1 << i % 8;
+
+				cout << "1" << endl;
+				cout << "i " << endl << " "  << i << endl << endl;
+				cout << "i % 8 " << endl << " "  << val << endl << endl;
+			}
+			// otherwise produce 0
+			else {
+				cout << "0" << endl;
 			}
 
 			i++;

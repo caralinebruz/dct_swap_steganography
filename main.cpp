@@ -141,27 +141,17 @@ int do_stuff(const string& inputfile, const string& secretfile, int channel) {
 	Mat ycbcr;
 	cvtColor(img, ycbcr, COLOR_BGR2YCrCb);
 
-	// 1b. split channels
-	Mat channels[3];
-	split(ycbcr, channels);//splitting images into 3 different channels//  
-	Mat y = channels[0];
-	Mat cr = channels[1];
-	Mat cb = channels[2];
-
-
-
+	// // 1b. split channels
+	// Mat channels[3];
+	// split(ycbcr, channels);//splitting images into 3 different channels//  
+	// Mat y = channels[0];
+	// Mat cr = channels[1];
+	// Mat cb = channels[2];
 	// do work
 
 	// based on the channel they selected, encode that channel
 	// since im testing ill start with a single channel
 	auto secret = read_file(secretfile);
-
-	Mat stego_y;
-	Mat stego_cr;
-	Mat stego_cb;
-
-	// we just use y for now.
-
 
 	// STORE_ONCE   1 = Stores the specified input once.
 	// STORE_FULL   2 = Stores the specified input and fills the rest of the available space with zeros.
@@ -176,55 +166,45 @@ int do_stuff(const string& inputfile, const string& secretfile, int channel) {
 	auto store = STORE_REPEAT, persistence = 30;
 
 
-	// set defaults for printing later
-	stego_y = y;
-	stego_cr = cr;
-	stego_cb = cb;
-
-
 	// WRONG! 
 	// you pass in the entire ycbcr image and the channel
+	Mat stega;
+	stega = encode_dct(ycbcr, secret, store, channel, persistence);
 
-	// if (channel == 0) {
-	// 	// encode y (luminance)
-	// 	stego_y = encode_dct(y, secret, store, channel, persistence);
 
-	// } else if (channel == 1) {
-	// 	// encode cr (red chrominance)
-	// 	stego_cr = encode_dct(y, secret, store, channel, persistence);
-
-	// } else if (channel == 2) {
-	// 	// encode cb (blue chrominance)
-	// 	stego_cb = encode_dct(y, secret, store, channel, persistence);
-
-	// }
-
-	stego = encode_dct(ycbcr, secret, store, channel, persistence);
+	// now, convert it back to bgr
+	Mat bgr_img;
+	cvtColor(stega, bgr_img, COLOR_YCrCb2BGR);
 
 
 	// now that you've encoded the data. 
 	// see if you can read it back out from the photo ok.
+	auto altered = remove_extension(inputfile) + ".dct.jpg";
+	imwrite(altered, bgr_img, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	cout << endl << "  " << Format::Green << Format::Bold << "Success:" << Format::Normal << Format::Default << " Altered image written to '" << altered << "'." << endl;
 
 
-
+	Mat alter_img = imread(altered);
+	string output;
+	output = decode_dct(alter_img, channel);
 
 	// displays
 
-	// split channels after processing
-	Mat stego_channels[3];
-	split(stego, stego_channels); 
-	Mat stego_y = stego_channels[0];
-	Mat stego_cr = stego_channels[1];
-	Mat stego_cb = stego_channels[2];
+	// // split channels after processing
+	// Mat stego_channels[3];
+	// split(stego, stego_channels); 
+	// Mat stego_y = stego_channels[0];
+	// Mat stego_cr = stego_channels[1];
+	// Mat stego_cb = stego_channels[2];
 
-	// create a midgray to use to display chrominance channels nicely
-	Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
+	// // create a midgray to use to display chrominance channels nicely
+	// Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
 
 
-	// display unaltered image in each color channel.
-	//display_split_channels(y, cr, cb, g);
+	// // display unaltered image in each color channel.
+	// //display_split_channels(y, cr, cb, g);
 
-	display_before_after(y, cr, cb, g, stego_y, stego_cr, stego_cb);
+	// display_before_after(y, cr, cb, g, stego_y, stego_cr, stego_cb);
 
 
 
