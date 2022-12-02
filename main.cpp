@@ -93,13 +93,53 @@ void do_dct(const string& input, const string& secret, int store, int channel, i
 	// show_image(stego, "Altered");
 }
 
+void display_split_channels(Mat y, Mat cr, Mat cb, Mat g) {
+	// display
+	vector<Mat> y_merged;
+	vector<Mat> cr_merged;
+	vector<Mat> cb_merged;
 
+	Mat cr_fin_img;
+	Mat cb_fin_img;
+	Mat y_fin_img;
+
+	// midgray
+	// Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
+
+	// luminance
+	y_merged.push_back(y);
+	y_merged.push_back(y);
+	y_merged.push_back(y);
+
+	// red chrominance
+	cr_merged.push_back(g);
+	cr_merged.push_back(g);
+	cr_merged.push_back(cr);
+
+	// blue chrominance
+	cb_merged.push_back(cb);
+	cb_merged.push_back(g);
+	cb_merged.push_back(g);
+
+	merge(y_merged, y_fin_img);
+	merge(cr_merged, cr_fin_img);
+	merge(cb_merged, cb_fin_img);
+
+	imshow("luminance", y_fin_img);
+	imshow("red chrominance 1", cr_fin_img);
+	imshow("blue chrominance", cb_fin_img); // correct order for merge
+	waitKey(0);
+	destroyAllWindows();//closing all windows//
+
+
+}
 
 
 int do_stuff(const string& inputfile, const string& secretfile) {
-	string window_original="original_image";
-	string window_gray="gray_image";
-	Mat img = imread(inputfile);//It returns a matrix object
+	// parse input image 
+	// encode one (or all) of the channels
+	// display encoded images vs original
+	Mat img = imread(inputfile); //It returns a matrix object
 
 
 	// to use some of these operations the ohoto has to be
@@ -110,74 +150,29 @@ int do_stuff(const string& inputfile, const string& secretfile) {
 	cout << img.rows << "\n";
 	cout << img.cols << "\n";
 
-	string window_Y="luminance";
-	string window_Cr="red chrominance";
-	string window_Cb="blue chrominance";
+	// 1a. convert the color scheme to YCrCb
 	Mat ycbcr;
 	cvtColor(img, ycbcr, COLOR_BGR2YCrCb);
 
-	// split channels
+	// 1b. split channels
 	Mat channels[3];
-
-
-
-
 	split(ycbcr, channels);//splitting images into 3 different channels//  
 	Mat y = channels[0];//loading blue channels//
 	Mat cr = channels[1];//loading green channels//
 	Mat cb = channels[2];//loading red channels// 
 
 
+
 	// do work
 
 
 
-	// display
-	vector<Mat> y_merged;
-	vector<Mat> cr_merged;
-	vector<Mat> cb_merged;
-	// vector<Mat> ycrcb_merged; for putting together at end
-
-
-	// Just create two empty matrix of the same size for Blue and Green
-	// Mat g = Mat::zeros(Size(img.rows, img.cols), CV_8UC1);
-
+	// displays
+	// create a midgray to use to display chrominance channels nicely
 	Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
-	// luminance
-	y_merged.push_back(y);
-	y_merged.push_back(y);
-	y_merged.push_back(y);
 
-	Mat y_fin_img;
-	merge(y_merged, y_fin_img);
-
-
-	// red chrominance
-	cr_merged.push_back(g);
-	cr_merged.push_back(g);
-	cr_merged.push_back(cr);
-
-	Mat cr_fin_img;
-	merge(cr_merged, cr_fin_img);
-
-
-	// blue chrominance
-	cb_merged.push_back(cb);
-	cb_merged.push_back(g);
-	cb_merged.push_back(g);
-
-	Mat cb_fin_img;
-	merge(cb_merged, cb_fin_img);
-
-	
-	imshow("luminance", y_fin_img);
-	imshow("red chrominance 1", cr_fin_img);
-	imshow("blue chrominance", cb_fin_img); // correct order for merge
-
-
-	waitKey(0);
-	destroyAllWindows();//closing all windows//
-
+	// display unaltered image in each color channel.
+	display_split_channels(y, cr, cb, g);
 
 	return 0;
 }
