@@ -4,6 +4,7 @@
 // basic file operations
 #include <iostream>
 #include <fstream>
+#include <string>
 
 /*!
  * Uses discrete cosine transformation to hide data in the coefficients of a channel of an image.
@@ -27,12 +28,16 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 	auto grid_height  = img.rows / block_height;
 
 	auto i = 0;
+
+
+	// in the secret text file, store 8 bits for each character in the text file
 	auto size = text.length() * 8;
+	cout << "Size of text = " << endl << " "  << size << endl << endl;
+
+
 
 	Mat imgfp;
-
-	// CV_32F - 32-bit floating-point numbers
-	img.convertTo(imgfp, CV_32F);
+	img.convertTo(imgfp, CV_32F); // CV_32F - 32-bit floating-point numbers
 
 	vector<Mat> planes;
 	split(imgfp, planes);
@@ -51,7 +56,7 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 	// grid width = 64
 	// grid height = 64
 
-
+	int count_blocks = 0;
 	for (int x = 1; x < grid_width; x++)
 	{
 		for (int y = 1; y < grid_height; y++)
@@ -63,6 +68,15 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 			auto px = (x - 1) * block_width;
 			auto py = (y - 1) * block_height;
 
+			cout << "Rect( " << endl;
+			cout << "px = " << endl << " "  << px << endl << endl;
+			cout << "py = " << endl << " "  << py << endl << endl;
+			cout << "block_width = " << endl << " "  << block_width << endl << endl;
+			cout << "block_height = " << endl << " "  << block_height << endl << endl;
+
+			// Mat (const Mat &m, const Rect &roi) -> pointer to ROI
+			// selects a region of interest 
+			// original sized image will be modified if roi mat is modified.
 			Mat block(planes[channel], Rect(px, py, block_width, block_height));
 			Mat trans(Size(block_width, block_height), block.type());
 
@@ -72,6 +86,8 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 
 			auto a = trans.at<float>(6, 7);
 			auto b = trans.at<float>(5, 1);
+
+			count_blocks++;
 
 
 			if ( (x <= 2) && (y <= 2) ) {
@@ -83,14 +99,14 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 				myfile << trans;
 				myfile.close();
 
-				cout << "M = " << endl << " "  << trans << endl << endl;
+				cout << "trans = " << endl << " "  << trans << endl << endl;
 				cout << "a = " << endl << " "  << a << endl << endl;
 				cout << "b = " << endl << " "  << b << endl << endl;
 
 			}
 
 
-
+			// case: we reached the end of the text file
 			if (i >= size)
 			{
 				if (mode == STORE_ONCE)
@@ -103,10 +119,15 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 				}
 			}
 
+			// case: we continue to process the text file
 			auto val = 0;
 			if (i < size)
 			{
+				// value in [0,1]
 				val = (text[i / 8] & 1 << i % 8) >> i % 8;
+
+				cout << "val = " << endl << " "  << val << endl << endl;
+
 				i++;
 			}
 
@@ -125,18 +146,22 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 				}
 			}
 
-			if (a > b)
-			{
-				auto d = (intensity - (a - b)) / 2;
-				     a = a + d;
-				     b = b - d;
-			}
-			else
-			{
-				auto d = (intensity - (b - a)) / 2;
-				     a = a - d;
-				     b = b + d;
-			}
+			// // unclear why this is done.
+			// if (a > b)
+			// {
+			// 		// 30 - (2) / 2 = 9
+			// 		// a = a + 9
+			// 		// b = b - 9
+			// 	auto d = (intensity - (a - b)) / 2;
+			// 	     a = a + d;
+			// 	     b = b - d;
+			// }
+			// else
+			// {
+			// 	auto d = (intensity - (b - a)) / 2;
+			// 	     a = a - d;
+			// 	     b = b + d;
+			// }
 
 			trans.at<float>(6, 7) = a;
 			trans.at<float>(5, 1) = b;
@@ -158,7 +183,9 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 	merge(planes, mergedfp);
 
 	Mat merged;
-	mergedfp.convertTo(merged, CV_8U);
+	mergedfp.convertTo(merged, CV_8U); //8-bit unsigned type
+
+	cout << "count of blocks = " << endl << " "  << count_blocks << endl << endl;
 
 	return merged;
 }

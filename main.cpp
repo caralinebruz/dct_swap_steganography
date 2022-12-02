@@ -122,12 +122,6 @@ void display_before_after(Mat y, Mat cr, Mat cb, Mat g, Mat stega_y, Mat stega_c
 
 
 
-// void dct(const string& input, const string& secret, int store, int channel, int persistence) {
-
-
-// }
-
-
 int do_stuff(const string& inputfile, const string& secretfile, int channel) {
 	// parse input image 
 	// encode one (or all) of the channels
@@ -188,23 +182,40 @@ int do_stuff(const string& inputfile, const string& secretfile, int channel) {
 	stego_cb = cb;
 
 
-	if (channel == 0) {
-		// encode y (luminance)
-		stego_y = encode_dct(y, secret, store, channel, persistence);
+	// WRONG! 
+	// you pass in the entire ycbcr image and the channel
 
-	} else if (channel == 1) {
-		// encode cr (red chrominance)
-		stego_cr = encode_dct(y, secret, store, channel, persistence);
+	// if (channel == 0) {
+	// 	// encode y (luminance)
+	// 	stego_y = encode_dct(y, secret, store, channel, persistence);
 
-	} else if (channel == 2) {
-		// encode cb (blue chrominance)
-		stego_cb = encode_dct(y, secret, store, channel, persistence);
+	// } else if (channel == 1) {
+	// 	// encode cr (red chrominance)
+	// 	stego_cr = encode_dct(y, secret, store, channel, persistence);
 
-	}
+	// } else if (channel == 2) {
+	// 	// encode cb (blue chrominance)
+	// 	stego_cb = encode_dct(y, secret, store, channel, persistence);
+
+	// }
+
+	stego = encode_dct(ycbcr, secret, store, channel, persistence);
+
+
+	// now that you've encoded the data. 
+	// see if you can read it back out from the photo ok.
+
 
 
 
 	// displays
+
+	// split channels after processing
+	Mat stego_channels[3];
+	split(stego, stego_channels); 
+	Mat stego_y = stego_channels[0];
+	Mat stego_cr = stego_channels[1];
+	Mat stego_cb = stego_channels[2];
 
 	// create a midgray to use to display chrominance channels nicely
 	Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
@@ -215,6 +226,8 @@ int do_stuff(const string& inputfile, const string& secretfile, int channel) {
 
 	display_before_after(y, cr, cb, g, stego_y, stego_cr, stego_cb);
 
+
+
 	return 0;
 }
 
@@ -223,6 +236,7 @@ int main(int argc, char **argv) {
 
 	//  ./stega -c[y|r|b] [-d | -l] <photo_file> <secret_file>
 	// ./stega -d -cy test/orange.jpeg test/test.txt
+	// ./stega -d -cy test/lena.jpg test/test.txt
 
 	int args;
 	int encode_channel;
