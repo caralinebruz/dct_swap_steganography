@@ -26,120 +26,100 @@ using namespace boost;
 bool z_verbose = false;
 
 
-void display_split_channels(Mat y, Mat cr, Mat cb, Mat g) {
-	// display
+Mat merge_y(Mat y, Mat g) {
 	vector<Mat> y_merged;
-	vector<Mat> cr_merged;
-	vector<Mat> cb_merged;
-
-	Mat cr_fin_img;
-	Mat cb_fin_img;
 	Mat y_fin_img;
-
-	// midgray
-	// Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
 
 	// luminance
 	y_merged.push_back(y);
 	y_merged.push_back(y);
 	y_merged.push_back(y);
 
+	merge(y_merged, y_fin_img);
+
+	return y_fin_img;
+}
+
+Mat merge_cr(Mat cr, Mat g) {
+	vector<Mat> cr_merged;
+	Mat cr_fin_img;
+
+	// // midgray
+	// Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
+
 	// red chrominance
 	cr_merged.push_back(g);
 	cr_merged.push_back(g);
 	cr_merged.push_back(cr);
+
+	merge(cr_merged, cr_fin_img);
+
+	return cr_fin_img;
+}
+
+Mat merge_cb(Mat cb, Mat g) {
+	vector<Mat> cb_merged;
+	Mat cb_fin_img;
+
+	// // midgray
+	// Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
 
 	// blue chrominance
 	cb_merged.push_back(cb);
 	cb_merged.push_back(g);
 	cb_merged.push_back(g);
 
-	merge(y_merged, y_fin_img);
-	merge(cr_merged, cr_fin_img);
 	merge(cb_merged, cb_fin_img);
 
-	imshow("luminance", y_fin_img);
-	imshow("red chrominance 1", cr_fin_img);
-	imshow("blue chrominance", cb_fin_img); // correct order for merge
+	return cb_fin_img;
+}
+
+void display_split_channels(Mat y, Mat cr, Mat cb, Mat g) {
+	// display 
+	// unaltered image channels
+
+	Mat c_y = merge_y(y,g);
+	Mat c_cr = merge_cr(cr,g);
+	Mat c_cb = merge_cb(cb,g);
+
+	imshow("luminance before", c_y);
+	imshow("red chrominance before", c_cr);
+	imshow("blue chrominance before", c_cb);
+
 	waitKey(0);
 	destroyAllWindows();//closing all windows//
 }
 
 void display_before_after(Mat y, Mat cr, Mat cb, Mat g, Mat stega_y, Mat stega_cr, Mat stega_cb) {
-
 	// display
+	// altered and unaltered image channels
 
-	vector<Mat> y_merged;
-	vector<Mat> cr_merged;
-	vector<Mat> cb_merged;
-	vector<Mat> y_stega_merged;
-	vector<Mat> cr_stega_merged;
-	vector<Mat> cb_stega_merged;
+	Mat c_y = merge_y(y,g);
+	Mat c_cr = merge_cr(cr,g);
+	Mat c_cb = merge_cb(cb,g);
 
-
-	Mat cr_fin_img;
-	Mat cb_fin_img;
-	Mat y_fin_img;
-	Mat cr_stega_fin_img;
-	Mat cb_stega_fin_img;
-	Mat y_stega_fin_img;
-
-	// midgray
-	// Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
-
-	// luminance
-	y_merged.push_back(y);
-	y_merged.push_back(y);
-	y_merged.push_back(y);
-
-	y_stega_merged.push_back(stega_y);
-	y_stega_merged.push_back(stega_y);
-	y_stega_merged.push_back(stega_y);
-
-	// red chrominance
-	cr_merged.push_back(g);
-	cr_merged.push_back(g);
-	cr_merged.push_back(cr);
-
-	cr_stega_merged.push_back(g);
-	cr_stega_merged.push_back(g);
-	cr_stega_merged.push_back(stega_cr);
-
-	// blue chrominance
-	cb_merged.push_back(cb);
-	cb_merged.push_back(g);
-	cb_merged.push_back(g);
-
-	cb_stega_merged.push_back(stega_cb);
-	cb_stega_merged.push_back(g);
-	cb_stega_merged.push_back(g);
+	Mat c_stega_y = merge_y(stega_y,g);
+	Mat c_stega_cr = merge_cr(stega_cr,g);
+	Mat c_stega_cb = merge_cb(stega_cb,g);
 
 
-	merge(y_merged, y_fin_img);
-	merge(cr_merged, cr_fin_img);
-	merge(cb_merged, cb_fin_img);
-
-	merge(y_stega_merged, y_stega_fin_img);
-	merge(cr_stega_merged, cr_stega_fin_img);
-	merge(cb_stega_merged, cb_stega_fin_img);
+	imwrite("out/luminance.jpg", y, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	imwrite("out/luminance_dct.jpg", stega_y, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
 
 
-	imwrite("out/luminance.jpg", y_fin_img, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
-	imwrite("out/luminance_dct.jpg", y_stega_fin_img, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	imshow("luminance before", c_y);
+	imshow("red chrominance before", c_cr);
+	imshow("blue chrominance before", c_cb);
 
-
-	imshow("luminance before", y_fin_img);
-	imshow("red chrominance before", cr_fin_img);
-	imshow("blue chrominance before", cb_fin_img);
-
-	imshow("luminance after", y_fin_img);
-	imshow("red chrominance after", cr_fin_img);
-	imshow("blue chrominance after", cb_fin_img);
+	imshow("luminance after", c_stega_y);
+	imshow("red chrominance after", c_stega_cr);
+	imshow("blue chrominance after", c_stega_cb);
 
 	waitKey(0);
 	destroyAllWindows();//closing all windows//
 
 }
+
 
 
 // void dct(const string& input, const string& secret, int store, int channel, int persistence) {
@@ -148,7 +128,7 @@ void display_before_after(Mat y, Mat cr, Mat cb, Mat g, Mat stega_y, Mat stega_c
 // }
 
 
-int do_stuff(const string& inputfile, const string& secretfile) {
+int do_stuff(const string& inputfile, const string& secretfile, int channel) {
 	// parse input image 
 	// encode one (or all) of the channels
 	// display encoded images vs original
@@ -199,15 +179,30 @@ int do_stuff(const string& inputfile, const string& secretfile) {
 
 	// compression percentage
 
-	auto store = STORE_REPEAT, channel = 0, persistence = 30;//
+	auto store = STORE_REPEAT, persistence = 30;
 
-	// stego = encode_dct(y, secret, store, channel, persistence);
-	// stego = encode_dct(cr, secret, store, channel, persistence);
-	// stego = encode_dct(cb, secret, store, channel, persistence);
 
-	stego_y = encode_dct(y, secret, store, channel, persistence);
+	// set defaults for printing later
+	stego_y = y;
 	stego_cr = cr;
 	stego_cb = cb;
+
+
+	if (channel == 0) {
+		// encode y (luminance)
+		stego_y = encode_dct(y, secret, store, channel, persistence);
+
+	} else if (channel == 1) {
+		// encode cr (red chrominance)
+		stego_cr = encode_dct(y, secret, store, channel, persistence);
+
+	} else if (channel == 2) {
+		// encode cb (blue chrominance)
+		stego_cb = encode_dct(y, secret, store, channel, persistence);
+
+	}
+
+
 
 	// displays
 
@@ -306,7 +301,7 @@ int main(int argc, char **argv) {
 	// do_dct(inputfile, secretfile, store, channel, persistence, compression);
 	// waitKey();
 
-	int resp = do_stuff(inputfile, secretfile);
+	int resp = do_stuff(inputfile, secretfile, encode_channel);
 
 	return 0;
 }
