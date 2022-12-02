@@ -94,127 +94,9 @@ void do_dct(const string& input, const string& secret, int store, int channel, i
 }
 
 
-int main(int argc, char **argv) {
-
-	//  ./iosched [ –s<schedalgo> | -v | -q | -f ] <inputfile>
-	//  ./iosched -si -vqf lab4_assign/input0
-
-	// ./steganography test/lena.jpg test/test.tx
-
-	// parsing the flags, arguments
-	int s;
-	// opterr = 0;
-
-	while (( s = getopt (argc, argv, "s:u:q:f:z:v:y:" )) != -1)
-		switch (s) {
-			case 'z':
-				//personal logging arg
-				printf("something");
-				break;
-
-			case 'v':
-				// execution trace flag
-				printf("something");
-				break;
-
-			case 's':
-				// algo
-				if (!(optarg==NULL)) {
-					char letter = optarg[0];
-					switch(letter) {
-						case 'i':
-							// FIFO
-							if (z_verbose) {printf("FIFO \n");}
-							printf("something");
-
-							break;
-						case 'j':
-							// SSTF
-							if (z_verbose) {printf("SSTF \n");}
-							printf("something");
-
-							break;
-						case 's':
-							// LOOK
-							if (z_verbose) {printf("LOOK \n");}
-							printf("something");
-
-							break;
-						case 'c':
-							// C-LOOK
-							if (z_verbose) {printf("C-LOOK \n");}
-							printf("something");
-
-							break;
-						case 'f':
-							// F-LOOK
-							if (z_verbose) {printf("F-LOOK \n");}
-							printf("something");
-							// ioscheduler->init_deques();
-
-							break;
-					}
-				}
-				break;
-
-			case 'f':
-				// F-LOOK additional queue info
-				printf("something");
-				break;
-
-			case 'q':
-				// io queue details (+ direction of movement)
-				printf("something");
-				break;
-
-			case 'y':
-				// io queue details (+ direction of movement)
-				printf("something");
-				break;
-
-			case 'u':
-				// wow ok the letter V is not working for some reason..... annoying.
-				printf("something");
-				break;
-
-			case '?':
-				if (optopt == 's')
-					fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-				else if (isprint (optopt))
-					fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-				else
-					fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);
-				return 1;
-			default:
-				abort ();
-		}
 
 
-	// parsing the files at the end of args
-	string inputfile;
-	string secretfile;
-	for (int i = 0; i < argc; i++) {
-		// printf("%s \n", argv[i]);
-		string arg = argv[i];       
-		// final argument
-		if (argc - i == 1) {
-			secretfile = arg;
-		}
-		// second to last argument
-		if (argc - i == 2) {
-			inputfile = arg;
-		}
-	}
-
-	printf("input file: %s\n second file: %s\n\n", inputfile.c_str(), secretfile.c_str());
-
-	// auto store = STORE_FULL, channel = 0, persistence = 30, compression = 80;
-	// //do_dct(const string& input, const string& secret, int store, int channel, int persistence, int compression)
-	// do_dct(inputfile, secretfile, store, channel, persistence, compression);
-	// waitKey();
-
-
-
+int do_stuff(const string& inputfile, const string& secretfile) {
 	string window_original="original_image";
 	string window_gray="gray_image";
 	Mat img = imread(inputfile);//It returns a matrix object
@@ -227,19 +109,6 @@ int main(int argc, char **argv) {
 	}
 	cout << img.rows << "\n";
 	cout << img.cols << "\n";
-
-
-	// Mat graymat;
-
-	// cvtC2olor(img, graymat, COLOR_BGR2GRAY);
-
-	// namedWindow(window_original,WINDOW_AUTOSIZE);
-	// imshow(window_original,img);
-
-	// namedWindow(window_gray,WINDOW_AUTOSIZE);
-	// imshow(window_gray,graymat);
-
-	// waitKey(0);
 
 	string window_Y="luminance";
 	string window_Cr="red chrominance";
@@ -260,8 +129,10 @@ int main(int argc, char **argv) {
 
 
 	// do work
-	// Mat ycrcb_merged;
 
+
+
+	// display
 	vector<Mat> y_merged;
 	vector<Mat> cr_merged;
 	vector<Mat> cb_merged;
@@ -272,8 +143,6 @@ int main(int argc, char **argv) {
 	// Mat g = Mat::zeros(Size(img.rows, img.cols), CV_8UC1);
 
 	Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
-
-
 	// luminance
 	y_merged.push_back(y);
 	y_merged.push_back(y);
@@ -308,6 +177,96 @@ int main(int argc, char **argv) {
 
 	waitKey(0);
 	destroyAllWindows();//closing all windows//
+
+
+	return 0;
+}
+
+
+int main(int argc, char **argv) {
+
+	//  ./stega -c[y|r|b] [-d | -l] <photo_file> <secret_file>
+	// ./stega -d -cy test/orange.jpeg test/test.txt
+
+	int args;
+	int encode_channel;
+
+	while (( args = getopt (argc, argv, "ldc:" )) != -1)
+		switch (args) {
+
+			case 'c':
+				// which channel to encode
+				if (!(optarg==NULL)) {
+
+					char letter = optarg[0];
+					switch(letter) {
+
+						case 'y':
+							// Luminance
+							encode_channel = 0;
+							printf("encode luminance channel\n");
+							break;
+
+						case 'r':
+							// Red Chrominance
+							encode_channel = 1;
+							printf("encode red chrominance channel\n");
+							break;
+
+						case 'b':
+							// Blue Chrominance
+							encode_channel = 2;
+							printf("encode blue chrominance channel\n");
+							break;
+					}
+				}
+				break;
+
+			case 'd':
+				// Discrete Cosine Transform
+				printf("use DCT\n");
+				break;
+			case 'l':
+				// Least Significant Bit
+				printf("use LSB\n");
+				break;
+
+			case '?':
+				if (optopt == 'c')
+					fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+				else if (isprint (optopt))
+					fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+				else
+					fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);
+				return 1;
+			default:
+				abort ();
+		}
+
+	// parsing the files at the end of args
+	string inputfile;
+	string secretfile;
+	for (int i = 0; i < argc; i++) {
+		// printf("%s \n", argv[i]);
+		string arg = argv[i];       
+		// final argument
+		if (argc - i == 1) {
+			secretfile = arg;
+		}
+		// second to last argument
+		if (argc - i == 2) {
+			inputfile = arg;
+		}
+	}
+	printf("input file: %s\n second file: %s\n\n", inputfile.c_str(), secretfile.c_str());
+
+	// auto store = STORE_FULL, channel = 0, persistence = 30, compression = 80;
+	// //do_dct(const string& input, const string& secret, int store, int channel, int persistence, int compression)
+	// do_dct(inputfile, secretfile, store, channel, persistence, compression);
+	// waitKey();
+
+	int resp = do_stuff(inputfile, secretfile);
+
 	return 0;
 }
 
