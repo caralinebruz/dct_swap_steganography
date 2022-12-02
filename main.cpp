@@ -109,12 +109,12 @@ int main(int argc, char **argv) {
 		switch (s) {
 			case 'z':
 				//personal logging arg
-                printf("something");
+				printf("something");
 				break;
 
 			case 'v':
 				// execution trace flag
-                printf("something");
+				printf("something");
 				break;
 
 			case 's':
@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
 						case 'c':
 							// C-LOOK
 							if (z_verbose) {printf("C-LOOK \n");}
-						    printf("something");
+							printf("something");
 
 							break;
 						case 'f':
@@ -159,22 +159,22 @@ int main(int argc, char **argv) {
 
 			case 'f':
 				// F-LOOK additional queue info
-                printf("something");
+				printf("something");
 				break;
 
 			case 'q':
 				// io queue details (+ direction of movement)
-                printf("something");
+				printf("something");
 				break;
 
 			case 'y':
 				// io queue details (+ direction of movement)
-                printf("something");
+				printf("something");
 				break;
 
 			case 'u':
 				// wow ok the letter V is not working for some reason..... annoying.
-                printf("something");
+				printf("something");
 				break;
 
 			case '?':
@@ -218,19 +218,100 @@ int main(int argc, char **argv) {
 	string window_original="original_image";
 	string window_gray="gray_image";
 	Mat img = imread(inputfile);//It returns a matrix object
-	Mat graymat;
 
-	cvtColor(img, graymat, COLOR_BGR2GRAY);
 
-	namedWindow(window_original,WINDOW_AUTOSIZE);
-	imshow(window_original,img);
+	// to use some of these operations the ohoto has to be
+	// perfectly square, FYI
+	if (img.rows != img.cols) {
+		printf("\nThis image is not square!!!! Must be square. \n");
+	}
+	cout << img.rows << "\n";
+	cout << img.cols << "\n";
 
-	namedWindow(window_gray,WINDOW_AUTOSIZE);
-	imshow(window_gray,graymat);
+
+	// Mat graymat;
+
+	// cvtC2olor(img, graymat, COLOR_BGR2GRAY);
+
+	// namedWindow(window_original,WINDOW_AUTOSIZE);
+	// imshow(window_original,img);
+
+	// namedWindow(window_gray,WINDOW_AUTOSIZE);
+	// imshow(window_gray,graymat);
+
+	// waitKey(0);
+
+	string window_Y="luminance";
+	string window_Cr="red chrominance";
+	string window_Cb="blue chrominance";
+	Mat ycbcr;
+	cvtColor(img, ycbcr, COLOR_BGR2YCrCb);
+
+	// split channels
+	Mat channels[3];
+
+
+
+
+	split(ycbcr, channels);//splitting images into 3 different channels//  
+	Mat y = channels[0];//loading blue channels//
+	Mat cr = channels[1];//loading green channels//
+	Mat cb = channels[2];//loading red channels// 
+
+
+	// do work
+	// Mat ycrcb_merged;
+
+	vector<Mat> y_merged;
+	vector<Mat> cr_merged;
+	vector<Mat> cb_merged;
+	// vector<Mat> ycrcb_merged; for putting together at end
+
+
+	// Just create two empty matrix of the same size for Blue and Green
+	// Mat g = Mat::zeros(Size(img.rows, img.cols), CV_8UC1);
+
+	Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
+
+
+	// luminance
+	y_merged.push_back(y);
+	y_merged.push_back(y);
+	y_merged.push_back(y);
+
+	Mat y_fin_img;
+	merge(y_merged, y_fin_img);
+
+
+	// red chrominance
+	cr_merged.push_back(g);
+	cr_merged.push_back(g);
+	cr_merged.push_back(cr);
+
+	Mat cr_fin_img;
+	merge(cr_merged, cr_fin_img);
+
+
+	// blue chrominance
+	cb_merged.push_back(cb);
+	cb_merged.push_back(g);
+	cb_merged.push_back(g);
+
+	Mat cb_fin_img;
+	merge(cb_merged, cb_fin_img);
+
+	
+	imshow("luminance", y_fin_img);
+	imshow("red chrominance 1", cr_fin_img);
+	imshow("blue chrominance", cb_fin_img); // correct order for merge
+
 
 	waitKey(0);
-
-
-
+	destroyAllWindows();//closing all windows//
 	return 0;
 }
+
+
+
+
+
