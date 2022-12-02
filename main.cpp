@@ -26,73 +26,6 @@ using namespace boost;
 bool z_verbose = false;
 
 
-/*!
- * Runs the discrete cosine transformation method.
- *
- * \param input Path to original image.
- * \param secret Path to the data to be hidden.
- * \param store Storage mode.
- * \param channel Channels to encode.
- * \param persistence Persistence value.
- * \param compression JPEG compression percentage.
- */
-void do_dct(const string& input, const string& secret, int store, int channel, int persistence, int compression)
-{
-	// the image file we will perform DCT on
-	auto img = imread(input);
-
-	if (!img.data)
-	{
-		cerr << endl << "  " << Format::Red << Format::Bold << "Error:" << Format::Normal << Format::Default << " Failed to open input image from '" << input << "'." << endl << endl;
-		return;
-	}
-
-	// show_image(img, "Original");
-
-	// read the secret data to hide in image
-	auto data = read_file(secret);
-
-	Mat stego;
-
-	if (channel == 0)
-	{
-		stego = encode_dct(img,   data, store, 0, persistence);
-		stego = encode_dct(stego, data, store, 1, persistence);
-		stego = encode_dct(stego, data, store, 2, persistence);
-	}
-	else
-	{
-		stego = encode_dct(img, data, store, channel - 1, persistence);
-	}
-
-	auto altered = remove_extension(input) + ".dct.jpg";
-
-	imwrite(altered, stego, vector<int> { IMWRITE_JPEG_QUALITY, compression });
-
-	cout << endl << "  " << Format::Green << Format::Bold << "Success:" << Format::Normal << Format::Default << " Altered image written to '" << altered << "'." << endl;
-
-	stego = imread(altered);
-
-	// string output;
-
-	// if (channel == 0)
-	// {
-	// 	output = repair(vector<string>
-	// 		{
-	// 			decode_dct(stego, 0),
-	// 			decode_dct(stego, 1),
-	// 			decode_dct(stego, 2)
-	// 		});
-	// }
-	// else
-	// {
-	// 	output = decode_dct(stego, channel - 1);
-	// }
-
-	// print_debug(data, output);
-	// show_image(stego, "Altered");
-}
-
 void display_split_channels(Mat y, Mat cr, Mat cb, Mat g) {
 	// display
 	vector<Mat> y_merged;
@@ -130,9 +63,89 @@ void display_split_channels(Mat y, Mat cr, Mat cb, Mat g) {
 	imshow("blue chrominance", cb_fin_img); // correct order for merge
 	waitKey(0);
 	destroyAllWindows();//closing all windows//
+}
 
+void display_before_after(Mat y, Mat cr, Mat cb, Mat g, Mat stega_y, Mat stega_cr, Mat stega_cb) {
+
+	// display
+
+	vector<Mat> y_merged;
+	vector<Mat> cr_merged;
+	vector<Mat> cb_merged;
+	vector<Mat> y_stega_merged;
+	vector<Mat> cr_stega_merged;
+	vector<Mat> cb_stega_merged;
+
+
+	Mat cr_fin_img;
+	Mat cb_fin_img;
+	Mat y_fin_img;
+	Mat cr_stega_fin_img;
+	Mat cb_stega_fin_img;
+	Mat y_stega_fin_img;
+
+	// midgray
+	// Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
+
+	// luminance
+	y_merged.push_back(y);
+	y_merged.push_back(y);
+	y_merged.push_back(y);
+
+	y_stega_merged.push_back(stega_y);
+	y_stega_merged.push_back(stega_y);
+	y_stega_merged.push_back(stega_y);
+
+	// red chrominance
+	cr_merged.push_back(g);
+	cr_merged.push_back(g);
+	cr_merged.push_back(cr);
+
+	cr_stega_merged.push_back(g);
+	cr_stega_merged.push_back(g);
+	cr_stega_merged.push_back(stega_cr);
+
+	// blue chrominance
+	cb_merged.push_back(cb);
+	cb_merged.push_back(g);
+	cb_merged.push_back(g);
+
+	cb_stega_merged.push_back(stega_cb);
+	cb_stega_merged.push_back(g);
+	cb_stega_merged.push_back(g);
+
+
+	merge(y_merged, y_fin_img);
+	merge(cr_merged, cr_fin_img);
+	merge(cb_merged, cb_fin_img);
+
+	merge(y_stega_merged, y_stega_fin_img);
+	merge(cr_stega_merged, cr_stega_fin_img);
+	merge(cb_stega_merged, cb_stega_fin_img);
+
+
+	imwrite("out/luminance.jpg", y_fin_img, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	imwrite("out/luminance_dct.jpg", y_stega_fin_img, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+
+
+	imshow("luminance before", y_fin_img);
+	imshow("red chrominance before", cr_fin_img);
+	imshow("blue chrominance before", cb_fin_img);
+
+	imshow("luminance after", y_fin_img);
+	imshow("red chrominance after", cr_fin_img);
+	imshow("blue chrominance after", cb_fin_img);
+
+	waitKey(0);
+	destroyAllWindows();//closing all windows//
 
 }
+
+
+// void dct(const string& input, const string& secret, int store, int channel, int persistence) {
+
+
+// }
 
 
 int do_stuff(const string& inputfile, const string& secretfile) {
@@ -157,22 +170,55 @@ int do_stuff(const string& inputfile, const string& secretfile) {
 	// 1b. split channels
 	Mat channels[3];
 	split(ycbcr, channels);//splitting images into 3 different channels//  
-	Mat y = channels[0];//loading blue channels//
-	Mat cr = channels[1];//loading green channels//
-	Mat cb = channels[2];//loading red channels// 
+	Mat y = channels[0];
+	Mat cr = channels[1];
+	Mat cb = channels[2];
 
 
 
 	// do work
 
+	// based on the channel they selected, encode that channel
+	// since im testing ill start with a single channel
+	auto secret = read_file(secretfile);
 
+	Mat stego_y;
+	Mat stego_cr;
+	Mat stego_cb;
+
+	// we just use y for now.
+
+
+	// STORE_ONCE   1 = Stores the specified input once.
+	// STORE_FULL   2 = Stores the specified input and fills the rest of the available space with zeros.
+	// STORE_REPEAT 3 = Stores the specified input in a repeating manner.
+
+
+	// persistence percentage
+	//		param intensity Persistence of the hidden data.
+
+	// compression percentage
+
+	auto store = STORE_REPEAT, channel = 0, persistence = 30;//
+
+	// stego = encode_dct(y, secret, store, channel, persistence);
+	// stego = encode_dct(cr, secret, store, channel, persistence);
+	// stego = encode_dct(cb, secret, store, channel, persistence);
+
+	stego_y = encode_dct(y, secret, store, channel, persistence);
+	stego_cr = cr;
+	stego_cb = cb;
 
 	// displays
+
 	// create a midgray to use to display chrominance channels nicely
 	Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
 
+
 	// display unaltered image in each color channel.
-	display_split_channels(y, cr, cb, g);
+	//display_split_channels(y, cr, cb, g);
+
+	display_before_after(y, cr, cb, g, stego_y, stego_cr, stego_cb);
 
 	return 0;
 }

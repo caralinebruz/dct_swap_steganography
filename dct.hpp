@@ -57,8 +57,8 @@ inline cv::Mat encode_dct(const cv::Mat& img, const std::string& text, int mode 
 		for (int y = 1; y < grid_height; y++)
 		{
 
-			cout << "x = " << endl << " "  << x << endl << endl;
-			cout << "y = " << endl << " "  << y << endl << endl;
+			// cout << "x = " << endl << " "  << x << endl << endl;
+			// cout << "y = " << endl << " "  << y << endl << endl;
 
 			auto px = (x - 1) * block_width;
 			auto py = (y - 1) * block_height;
