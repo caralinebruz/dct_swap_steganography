@@ -1,6 +1,8 @@
 # mine
 stega
 obj/*
+out/*
+.DS_Store
 
 # Prerequisites
 *.d
