@@ -154,26 +154,31 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 					if (mode == STORE_REPEAT) {
 						// fill the queue again
 						myqueue = fillqueue(text);
+						val = myqueue.front();
+						myqueue.pop();
+					} else {
+						printf("figure out what to do with the other store types\n");
 					}
 				}
 
-				if ( (x <= 1) && (y <= 4) ) {
-					// print it.
-					// ofstream myfile;
-					// myfile.open("./out/example.txt");
-					// myfile << "Writing this to a file.\n";
-					// myfile << "M = ";
-					// myfile << trans;
-					// myfile.close();
+				// if ( (x <= 1) && (y <= 4) ) {
+				// 	// print it.
+				// 	// ofstream myfile;
+				// 	// myfile.open("./out/example.txt");
+				// 	// myfile << "Writing this to a file.\n";
+				// 	// myfile << "M = ";
+				// 	// myfile << trans;
+				// 	// myfile.close();
 
-					printf("this item:\n");
-					cout << "trans = " << endl << " "  << trans << endl << endl;
-					cout << "Value in " << endl << " "  << val << endl << endl;
+				// 	// printf("this item:\n");
+				// 	// cout << "trans = " << endl << " "  << trans << endl << endl;
+				// 	// cout << "Value in " << endl << " "  << val << endl << endl;
 
-					printf("before swaps\n");
-					cout << "a = " << endl << " "  << a << endl << endl;
-					cout << "b = " << endl << " "  << b << endl << endl;
-				}
+				// 	// printf("before swaps\n");
+				// 	// cout << "a = " << endl << " "  << a << endl << endl;
+				// 	// cout << "b = " << endl << " "  << b << endl << endl;
+				// }
+				
 				i++;
 			}
 
@@ -214,24 +219,6 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 				}
 
 			}
-
-			// // when val == 0 , ensure b >= a
-			// if (val == 0)
-			// {
-			// 	if (a > b)
-			// 	{
-			// 		swap(a, b);
-			// 	}
-			// }
-			// // when val == 1 , ensure b <= a
-			// else
-			// {
-			// 	if (a < b)
-			// 	{
-			// 		swap(a, b);
-			// 	}
-			// }
-			// // if they were equal, ?
 
 			trans.at<float>(x_1, x_2) = a;
 			trans.at<float>(y_1, y_2) = b;
@@ -326,56 +313,14 @@ inline std::string decode_dct(const cv::Mat& img, int channel = 0)
 			}
 
 
+			// if ( (x <= 1) && (y <= 4) ) {
 
-			// if (b > a) {
-
-			// 	// we assume 1
-			// 	bin.push_back('1');
-			// 	val = 1;
-
+			// 	// printf("this item:\n");
+			// 	// cout << "trans = " << endl << " "  << trans << endl << endl;
+			// 	// cout << "Value OUT " << endl << " "  << val << endl << endl;
+			// 	// cout << "a = " << endl << " "  << a << endl << endl;
+			// 	// cout << "b = " << endl << " "  << b << endl << endl;
 			// }
-			// else if (a > b) {
-
-			// 	// we assume 0
-			// 	bin.push_back('0');
-			// }
-			// else if (a == b) {
-
-			// 	// we assume 0
-			// 	bin.push_back('0');
-			// }
-
-
-			// // if a > b , should produce 1
-			// int val = 0;
-			// if (a > b)
-			// {
-			// 	bin.push_back('1');
-			// 	val = 1;
-			// 	// cout << "1" << endl;
-
-			// }
-			// // otherwise produce 0
-			// else {
-			// 	bin.push_back('0');
-			// 	// cout << "0" << endl;
-			// }
-
-			if ( (x <= 1) && (y <= 4) ) {
-				// print it.
-				// ofstream myfile;
-				// myfile.open("./out/example.txt");
-				// myfile << "Writing this to a file.\n";
-				// myfile << "M = ";
-				// myfile << trans;
-				// myfile.close();
-
-				printf("this item:\n");
-				cout << "trans = " << endl << " "  << trans << endl << endl;
-				cout << "Value OUT " << endl << " "  << val << endl << endl;
-				cout << "a = " << endl << " "  << a << endl << endl;
-				cout << "b = " << endl << " "  << b << endl << endl;
-			}
 
 			i++;
 		}

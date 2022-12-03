@@ -93,7 +93,7 @@ std::string setStringtoASCII(std::string str)
     }
 
     int Newlen = int(str.size());
-    printf("length of new string: %d\n", Newlen);
+    //printf("length of new string: %d\n", Newlen);
     
 
  
@@ -104,14 +104,14 @@ std::string setStringtoASCII(std::string str)
     for (int i = 0; i < N; i += 8) {
         int decimal_value = binaryToDecimal((str.substr(i, 8)));
 
-        printf("this decimal: %s \n", str.substr(i, 8).c_str());
+        // printf("this decimal: %s \n", str.substr(i, 8).c_str());
  
         // Apprend the ASCII character
         // equivalent to current value
         // res += char(decimal_value);
         char letter = char(decimal_value);
 
-        printf("%c \n", letter);
+        // printf("%c \n", letter);
         res.push_back(letter);
     }
  
@@ -119,49 +119,77 @@ std::string setStringtoASCII(std::string str)
     return res;
 }
 
-std::vector<int> strToBinary(std::string s)
-{
-	std::vector<int> stringvals;
+// std::vector<int> strToBinary(std::string s)
+// {
+// 	std::vector<int> stringvals;
 
-    int n = s.length(); 
- 	std::string bin = "";
+//     int n = s.length(); 
+//  	std::string bin = "";
 
-    for (int i = 0; i <= n; i++)
-    {
-        // convert each char to
-        // ASCII value
-        int val = int(s[i]);
+//     for (int i = 0; i <= n; i++)
+//     {
+//         // convert each char to
+//         // ASCII value
+//         int val = int(s[i]);
  
-        // Convert ASCII value to binary
-        // std::string bin = "";
-        while (val > 0)
-        {
-            // (val % 2)? bin.push_back('1') :
-            //            bin.push_back('0');
-			(val % 2)? stringvals.push_back(1):
-						stringvals.push_back(0);
+//         // Convert ASCII value to binary
+//         // std::string bin = "";
+//         while (val > 0)
+//         {
+//             // (val % 2)? bin.push_back('1') :
+//             //            bin.push_back('0');
+// 			(val % 2)? stringvals.push_back(1):
+// 						stringvals.push_back(0);
 
 
-            val /= 2;
-        }
-        //reverse(bin.begin(), bin.end());
-        std::reverse(stringvals.begin(),stringvals.end());
+//             val /= 2;
+//         }
+//         //reverse(bin.begin(), bin.end());
+//         std::reverse(stringvals.begin(),stringvals.end());
  
-        // cout << bin << " ";
-    }
-    return stringvals;
-}
+//         // cout << bin << " ";
+//     }
+//     return stringvals;
+//}
 
 
 std::vector<int> TextToBinaryString(std::string words) {
+	// this is messed up and some letters dont convert correctly. oh well.
 	using namespace std;
+
+	int N = words.size();
+	vector<int> stringV;
+
+
+	for (int i = 0; i < N; i++) {
+		char letter = words[i];
+		//printf("Letter: %c \n", letter);
+
+		string newstr = bitset<8>(letter).to_string();
+		//printf("newstring : %s\n" , newstr.c_str());
+
+		int mybit = static_cast<int>(bitset<8>(newstr).to_ulong());
+
+		// for this 8 bits, add each to the vector
+		for (int x = 0; x < 8; x++) {
+
+			char number = newstr[x];
+			// printf("\tsub %c", number);
+
+			// int mybit_int;
+			// mybit_int = (int)(number.to_ulong());
+			// printf("my bit %d\n", mybit_int);
+
+		}
+		// printf("\n");
+		
+	}
 
     string binaryString = "";
     for (char& _char : words) {
         binaryString +=bitset<8>(_char).to_string();
     }
-    printf("binary string: %s", binaryString.c_str());
-
+    printf("binary string: %s\n", binaryString.c_str());
 
 
     std::vector<int> stringvals;
@@ -169,7 +197,7 @@ std::vector<int> TextToBinaryString(std::string words) {
 	for(string::size_type i = 0; i < binaryString.size(); ++i) {
 
 		int val = int(binaryString[i]);
-		printf("%d ", val);
+		// printf("%d ", val);
 
 		if (val % 2 == 0) {
 			stringvals.push_back(0);
@@ -180,8 +208,12 @@ std::vector<int> TextToBinaryString(std::string words) {
 	}
 
     return stringvals;
-
 }
+
+
+
+
+
 
 /*!
  * Tries to recover the original string by comparing multiple extracted data

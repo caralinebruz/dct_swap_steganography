@@ -217,7 +217,8 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	printf("string out : %s", output.c_str());
 
 
-    cout << setStringtoASCII(output);
+    // cout << setStringtoASCII(output);
+    string ascii = setStringtoASCII(output);
 
 	// displays
 
