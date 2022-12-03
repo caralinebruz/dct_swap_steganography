@@ -122,7 +122,7 @@ void display_before_after(Mat y, Mat cr, Mat cb, Mat g, Mat stega_y, Mat stega_c
 
 
 
-int do_stuff(const string& inputfile, const string& secretfile, int channel) {
+int do_stuff(const string& inputfile, string secretfile, int channel) {
 	// parse input image 
 	// encode one (or all) of the channels
 	// display encoded images vs original
@@ -151,7 +151,24 @@ int do_stuff(const string& inputfile, const string& secretfile, int channel) {
 
 	// based on the channel they selected, encode that channel
 	// since im testing ill start with a single channel
-	auto secret = read_file(secretfile);
+	string secret = read_file(secretfile);
+	printf("string: %s \n", secret.c_str());
+
+	// try to convert the string to binary first
+	// string binstring = TextToBinaryString(secret);
+	// vector<int> binstring = strToBinary(secret);
+
+	vector<int> binstring = TextToBinaryString(secret);
+
+	// printf("string binary: %s \n", binstring.c_str());
+
+	printf("binary string:\n");
+	for (auto i = binstring.begin(); i != binstring.end(); ++i){
+	    // std::cout << *i << ' ';
+	    printf("%d",*i);
+	}
+	printf(".\n");
+
 
 	// STORE_ONCE   1 = Stores the specified input once.
 	// STORE_FULL   2 = Stores the specified input and fills the rest of the available space with zeros.
@@ -163,30 +180,44 @@ int do_stuff(const string& inputfile, const string& secretfile, int channel) {
 
 	// compression percentage
 
+	//auto store = STORE_REPEAT, persistence = 30;
 	auto store = STORE_REPEAT, persistence = 30;
 
 
-	// WRONG! 
+
 	// you pass in the entire ycbcr image and the channel
 	Mat stega;
-	stega = encode_dct(ycbcr, secret, store, channel, persistence);
-
+	stega = encode_dct(ycbcr, binstring, store, channel, persistence);
+	printf("done encoding.");
 
 	// now, convert it back to bgr
 	Mat bgr_img;
 	cvtColor(stega, bgr_img, COLOR_YCrCb2BGR);
 
 
+
 	// now that you've encoded the data. 
 	// see if you can read it back out from the photo ok.
 	auto altered = remove_extension(inputfile) + ".dct.jpg";
-	imwrite(altered, bgr_img, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	imwrite(altered, bgr_img, vector<int> { IMWRITE_JPEG_QUALITY, 90 });
 	cout << endl << "  " << Format::Green << Format::Bold << "Success:" << Format::Normal << Format::Default << " Altered image written to '" << altered << "'." << endl;
 
 
+	printf("starting decode of %s...", altered.c_str());
 	Mat alter_img = imread(altered);
+	// take the altered image and split it into ycbcr again
+	Mat o_ycrcb;
+	cvtColor(alter_img, o_ycrcb, COLOR_BGR2YCrCb);
 	string output;
-	output = decode_dct(alter_img, channel);
+
+
+	//output = decode_dct(o_ycrcb, channel);
+	output = decode_dct(stega, channel);
+
+	printf("string out : %s", output.c_str());
+
+
+    cout << setStringtoASCII(output);
 
 	// displays
 

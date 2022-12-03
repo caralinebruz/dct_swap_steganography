@@ -1,5 +1,7 @@
 #pragma once
 #include <fstream>
+#include <bitset>
+#include <vector>
 #include <functional>
 #include <algorithm>
 #include <unordered_map>
@@ -45,6 +47,140 @@ inline float similarity(const std::string& original, const std::string& extracte
 	}
 
 	return float(hits) / original.length() * 100;
+}
+
+// Function to convert binary to decimal
+int binaryToDecimal(std::string n)
+{
+	using namespace std;
+    string num = n;
+ 
+    // Stores the decimal value
+    int dec_value = 0;
+ 
+    // Initializing base value to 1
+    int base = 1;
+ 
+    int len = num.length();
+    for (int i = len - 1; i >= 0; i--) {
+ 
+        // If the current bit is 1
+        if (num[i] == '1')
+            dec_value += base;
+        base = base * 2;
+    }
+ 
+    // Return answer
+    return dec_value;
+}
+
+std::string setStringtoASCII(std::string str)
+{
+	using namespace std;
+    // To store size of s
+    int N = int(str.size());
+ 
+    // If given string is not a
+    // valid string
+    if (N % 8 != 0) {
+        printf("length is not divisible by 8! truncate string to decode...");
+    }
+
+    int remainder = N % 8;
+    // remove that many chars from the end of the string
+    for (int i = 0; i < remainder; i++) {
+    	str.pop_back();
+    }
+
+    int Newlen = int(str.size());
+    printf("length of new string: %d\n", Newlen);
+    
+
+ 
+    // To store final answer
+    string res = "";
+ 
+    // Loop to iterate through string
+    for (int i = 0; i < N; i += 8) {
+        int decimal_value = binaryToDecimal((str.substr(i, 8)));
+
+        printf("this decimal: %s \n", str.substr(i, 8).c_str());
+ 
+        // Apprend the ASCII character
+        // equivalent to current value
+        // res += char(decimal_value);
+        char letter = char(decimal_value);
+
+        printf("%c \n", letter);
+        res.push_back(letter);
+    }
+ 
+    // Return Answer
+    return res;
+}
+
+std::vector<int> strToBinary(std::string s)
+{
+	std::vector<int> stringvals;
+
+    int n = s.length(); 
+ 	std::string bin = "";
+
+    for (int i = 0; i <= n; i++)
+    {
+        // convert each char to
+        // ASCII value
+        int val = int(s[i]);
+ 
+        // Convert ASCII value to binary
+        // std::string bin = "";
+        while (val > 0)
+        {
+            // (val % 2)? bin.push_back('1') :
+            //            bin.push_back('0');
+			(val % 2)? stringvals.push_back(1):
+						stringvals.push_back(0);
+
+
+            val /= 2;
+        }
+        //reverse(bin.begin(), bin.end());
+        std::reverse(stringvals.begin(),stringvals.end());
+ 
+        // cout << bin << " ";
+    }
+    return stringvals;
+}
+
+
+std::vector<int> TextToBinaryString(std::string words) {
+	using namespace std;
+
+    string binaryString = "";
+    for (char& _char : words) {
+        binaryString +=bitset<8>(_char).to_string();
+    }
+    printf("binary string: %s", binaryString.c_str());
+
+
+
+    std::vector<int> stringvals;
+
+	for(string::size_type i = 0; i < binaryString.size(); ++i) {
+
+		int val = int(binaryString[i]);
+		printf("%d ", val);
+
+		if (val % 2 == 0) {
+			stringvals.push_back(0);
+		}
+		else {
+			stringvals.push_back(1);
+		}
+	}
+
+    return stringvals;
+
 }
 
 /*!
