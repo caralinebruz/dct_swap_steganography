@@ -46,11 +46,35 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 
 	auto i = 0;
 
-	// coefficient locations
-	int x_1 = 2;
-	int x_2 = 0;
-	int y_1 = 1;
-	int y_2 = 2;
+	// use different quantization cells
+	// luminance quantization uses diff values
+	// from chrominance
+	// see: https://github.com/mVirtuoso21/JPEG-Image-Compressor/blob/main/main.py
+	// hmm my performance isnt good for the other channels when i refer to ^ table
+	// maybe opencv uses a diff quantization table than that.
+	int x_1;
+	int x_2;
+	int y_1;
+	int y_2;
+	x_1 = 2;
+	x_2 = 0;
+	y_1 = 1;
+	y_2 = 2;
+	// if (channel == 0) {
+	// 	x_1 = 2;
+	// 	x_2 = 0;
+	// 	y_1 = 1;
+	// 	y_2 = 2;
+
+	// }
+	// else {
+	// 	x_1 = 2;
+	// 	x_2 = 3;
+	// 	y_1 = 1;
+	// 	y_2 = 5;
+
+	// }
+
 
 
 	// in the secret text file, store 8 bits for each character in the text file
@@ -79,26 +103,8 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 	cout << "Grid Height = " << endl << " "  << grid_height << endl << endl;
 
 
-	// lena is 512 x 512
-	// img.cols = 512
-	// img.rows = 512
-
-	// grid width = 64
-	// grid height = 64
-
 	// init file object
 	bool print_coeffs = true;
-		// if (print_coeffs == true) {
-
-		// 	ofstream ofs("./out/orig_coefficients.txt", ofstream::trunc);
-
-		// 			ofstream myfile;
-		// 			myfile.open("./out/orig_coefficients.txt");
-		// 			myfile << trans;
-		// 			myfile.close();
-
-
-		// }
 
 
 	int count_blocks = 0;
@@ -168,16 +174,6 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 						printf("figure out what to do with the other store types\n");
 					}
 				}
-
-				//https://www.delftstack.com/howto/cpp/convert-string-to-binary-in-cpp/
-				
-				// if (print_coeffs == true) {
-
-				// 	ofstream myfile;
-				// 	myfile.open("./out/orig_coefficients.txt", ios_base::app); // append mode
-				// 	myfile << trans;
-				// 	myfile.close();
-				// }
 
 				if ( (x <= 1) && (y <= 16) ) {
 					// print it.
@@ -314,11 +310,32 @@ inline std::string decode_dct(const cv::Mat& img, int channel = 0)
 	auto grid_width   = img.cols / block_width;
 	auto grid_height  = img.rows / block_height;
 
-	// coefficient locations
-	int x_1 = 2;
-	int x_2 = 0;
-	int y_1 = 1;
-	int y_2 = 2;
+
+	// locations selected for swap coefficietns
+	// based on quantization applied to each channel in compression
+	// for better performance
+	int x_1;
+	int x_2;
+	int y_1;
+	int y_2;	
+	x_1 = 2;
+	x_2 = 0;
+	y_1 = 1;
+	y_2 = 2;
+	// if (channel == 0) {
+	// 	x_1 = 2;
+	// 	x_2 = 0;
+	// 	y_1 = 1;
+	// 	y_2 = 2;
+
+	// }
+	// else {
+	// 	x_1 = 2;
+	// 	x_2 = 3;
+	// 	y_1 = 1;
+	// 	y_2 = 5;
+
+	// }
 
 	auto i = 0;
 

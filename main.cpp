@@ -284,7 +284,7 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	// compression percentage
 
 	//auto store = STORE_REPEAT, persistence = 30;
-	auto store = STORE_REPEAT, persistence = 10;
+	auto store = STORE_REPEAT, persistence = 5;
 
 
 
@@ -306,6 +306,9 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	// changes to the dct!
 	// var persistence attempts to combat this, but may be too revealing against statistical analysis...
 	// you will need to play around with these params and find what makes sense for use case
+
+	// Also! i dont knwo what the quantization table looks like for this library,
+	// if i know what it is i can choose swap cells more wisely.
 	auto altered = remove_extension(inputfile) + ".dct.jpg";
 	imwrite(altered, bgr_img, vector<int> { IMWRITE_JPEG_QUALITY, 100 });
 	cout << endl << "  " << Format::Green << Format::Bold << "Success:" << Format::Normal << Format::Default << " Altered image written to '" << altered << "'." << endl;
@@ -327,29 +330,6 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
  	cout << "Binary string: " << data << "!\n";
     cout << "Result binary string to text: " << BinaryStringToText(data) << "!\n";
 
-
-	
-
-	// stringstream sstream(data);
-    // string output;
-    // while(sstream.good())
-    // {
-    //     std::bitset<8> bits;
-    //     sstream >> bits;
-    //     char c = char(bits.to_ulong());
-    //     output += c;
-    // }
-    // cout << output;
-
-    // printf("string out : %s", data.c_str());
-
-
-    // // cout << setStringtoASCII(output);
-    // string ascii = setStringtoASCII(output);
-
-    // strToChar_1(output)
-
-	// displays
 
 	// // split channels after processing
 	// Mat stego_channels[3];
