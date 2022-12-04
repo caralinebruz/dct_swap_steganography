@@ -12,6 +12,13 @@
 // #include "dwt.hpp"
 // #include "tlv.hpp"
 
+
+#include <fstream>
+#include <vector>
+#include <iostream>
+#include <string>
+#include <cstdio>
+
 #if _WIN32
 	#include <conio.h>
 #else
@@ -24,6 +31,63 @@ using namespace boost;
 
 // bool v_verbose = true;
 bool z_verbose = false;
+
+// reading from input files
+
+
+// string convertToString(char* a)
+// {
+//     string s = a;
+//     return s;
+// }
+
+
+fstream f;
+vector<int> randvals;
+vector<char> randchars;
+void read_random_file(string randofile) {
+	f.open(randofile);
+	int rnum;
+	char byte = 0;
+
+    while (f.get(byte)) {
+        randchars.push_back(byte);
+
+		// int i;
+		// sscanf(randchars, "%d", &i);
+		// cout << i;
+
+        // int num = stoi(byte);
+        // // randvals.push_back(num);
+        // string objStr = byte;
+        // cout << objStr << endl;
+
+
+        int n = byte - '0';
+        cout << n << endl;
+        randvals.push_back(n);
+
+    }
+    for (const auto &i : randchars) {
+        cout << i << "-";
+
+
+    }
+
+    // // int a_size = sizeof(randchars) / sizeof(char);
+    // string s_a = convertToString(randchars);
+    // cout << s_a << endl;
+
+
+	// int skipfirst;
+	// f >> skipfirst;     // first number is the # of entries in the file
+
+	// while ( f >> noskipws >> rnum) {
+	// 	cout << rnum;
+	// 	randvals.push_back(rnum);
+	// }
+	f.close();
+}
 
 
 Mat merge_y(Mat y, Mat g) {
@@ -178,31 +242,28 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	// first COUT binary string to text file
 	// confirm the text file can be converted back, and is correct. via web:
 	// https://www.rapidtables.com/convert/number/binary-to-ascii.html
-	string s = "Hi";
-	convert_to_binary(s);
+	// string s = "Hi";
+	// convert_to_binary(s);
+
+
+
+
+
 
 	// this writes to a file the binary string
-	text_to_binary_1(s);
+	text_to_binary_1(secret);
 	// now, read the file.
 	string binfile = ("./test/example_binary.txt");
-	string binst = read_file(binfile);
-	string response = setStringtoASCII(binst);
-	printf("\n\nTESTING\n\n");
-	cout << response;
 
 
-	// char q = strToChar_1();
+	cout << "\n testing \n";
+	read_random_file(binfile);
+	cout << "\n done \n";
 
-	vector<int> binstring = TextToBinaryString(secret);
-
-	// printf("string binary: %s \n", binstring.c_str());
-
-	printf("binary string:\n");
-	for (auto i = binstring.begin(); i != binstring.end(); ++i){
-	    // std::cout << *i << ' ';
-	    printf("%d",*i);
-	}
-	printf(".\n");
+	// // string binst = read_file(binfile);
+	// string response = setStringtoASCII(binst);
+	// printf("\n\nTESTING\n\n");
+	// cout << response;
 
 
 	// STORE_ONCE   1 = Stores the specified input once.
@@ -222,7 +283,7 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 
 	// you pass in the entire ycbcr image and the channel
 	Mat stega;
-	stega = encode_dct(ycbcr, binstring, store, channel, persistence);
+	stega = encode_dct(ycbcr, randvals, store, channel, persistence);
 	printf("done encoding.");
 
 	// now, convert it back to bgr
