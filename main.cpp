@@ -18,6 +18,8 @@
 #include <iostream>
 #include <string>
 #include <cstdio>
+#include <sstream>
+#include <bitset>
 
 #if _WIN32
 	#include <conio.h>
@@ -64,15 +66,15 @@ void read_random_file(string randofile) {
 
 
         int n = byte - '0';
-        cout << n << endl;
+        // cout << n << endl;
         randvals.push_back(n);
 
     }
-    for (const auto &i : randchars) {
-        cout << i << "-";
+    // for (const auto &i : randchars) {
+    //     cout << i << "-";
 
 
-    }
+    // }
 
     // // int a_size = sizeof(randchars) / sizeof(char);
     // string s_a = convertToString(randchars);
@@ -273,11 +275,16 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 
 	// persistence percentage
 	//		param intensity Persistence of the hidden data.
+	// when the output image gets compressed, it will impact the image constituents
+	// goal is to set persistence low enough where it wont weight/ affect coefficients 
+	// by too much to get noticed by statistical analysis.
+
+	// if i make the compression 100 percent quality, do i need persistence?
 
 	// compression percentage
 
 	//auto store = STORE_REPEAT, persistence = 30;
-	auto store = STORE_REPEAT, persistence = 30;
+	auto store = STORE_REPEAT, persistence = 10;
 
 
 
@@ -294,8 +301,13 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 
 	// now that you've encoded the data. 
 	// see if you can read it back out from the photo ok.
+
+	// you need to use an extremely high image compression quality if you want to preserve your
+	// changes to the dct!
+	// var persistence attempts to combat this, but may be too revealing against statistical analysis...
+	// you will need to play around with these params and find what makes sense for use case
 	auto altered = remove_extension(inputfile) + ".dct.jpg";
-	imwrite(altered, bgr_img, vector<int> { IMWRITE_JPEG_QUALITY, 90 });
+	imwrite(altered, bgr_img, vector<int> { IMWRITE_JPEG_QUALITY, 100 });
 	cout << endl << "  " << Format::Green << Format::Bold << "Success:" << Format::Normal << Format::Default << " Altered image written to '" << altered << "'." << endl;
 
 
@@ -304,17 +316,38 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	// take the altered image and split it into ycbcr again
 	Mat o_ycrcb;
 	cvtColor(alter_img, o_ycrcb, COLOR_BGR2YCrCb);
-	string output;
+
 
 
 	//output = decode_dct(o_ycrcb, channel);
-	output = decode_dct(stega, channel);
+	string data;
+	//data = decode_dct(stega, channel);
+	data = decode_dct(o_ycrcb, channel);
 
-	printf("string out : %s", output.c_str());
+ 	cout << "Binary string: " << data << "!\n";
+    cout << "Result binary string to text: " << BinaryStringToText(data) << "!\n";
 
 
-    // cout << setStringtoASCII(output);
-    string ascii = setStringtoASCII(output);
+	
+
+	// stringstream sstream(data);
+    // string output;
+    // while(sstream.good())
+    // {
+    //     std::bitset<8> bits;
+    //     sstream >> bits;
+    //     char c = char(bits.to_ulong());
+    //     output += c;
+    // }
+    // cout << output;
+
+    // printf("string out : %s", data.c_str());
+
+
+    // // cout << setStringtoASCII(output);
+    // string ascii = setStringtoASCII(output);
+
+    // strToChar_1(output)
 
 	// displays
 

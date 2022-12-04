@@ -1,6 +1,5 @@
 #pragma once
 #include <fstream>
-#include <bitset>
 #include <vector>
 #include <functional>
 #include <algorithm>
@@ -10,6 +9,10 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
+
+#include <iostream>
+#include <bitset>
+#include <sstream>
 
 /*!
  * Stores the specified input once.
@@ -87,6 +90,19 @@ char strToChar_1(const char* str) {
 }
 
 
+std::string BinaryStringToText(std::string binaryString) {
+	using namespace std;
+    string text = "";
+    stringstream sstream(binaryString);
+    while (sstream.good())
+    {
+        bitset<8> bits;
+        sstream >> bits;
+        text += char(bits.to_ulong());
+    }
+    return text;
+}
+
 
 
 
@@ -127,7 +143,7 @@ std::string setStringtoASCII(std::string str)
         // res += char(decimal_value);
         char letter = char(decimal_value);
 
-        // printf("%c \n", letter);
+        printf("%c \n", letter);
         res.push_back(letter);
     }
  

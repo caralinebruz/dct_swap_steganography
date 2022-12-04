@@ -169,7 +169,7 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 					}
 				}
 
-				
+				//https://www.delftstack.com/howto/cpp/convert-string-to-binary-in-cpp/
 				
 				// if (print_coeffs == true) {
 
@@ -179,7 +179,7 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 				// 	myfile.close();
 				// }
 
-				//if ( (x <= 1) && (y <= 4) ) {
+				if ( (x <= 1) && (y <= 16) ) {
 					// print it.
 					// ofstream myfile;
 					// myfile.open("./out/example.txt");
@@ -188,14 +188,14 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 					// myfile << trans;
 					// myfile.close();
 
-					// printf("this item:\n");
-					// cout << "trans = " << endl << " "  << trans << endl << endl;
-					// cout << "Value in " << endl << " "  << val << endl << endl;
+					printf("this iteration %d:\n", count_blocks);
+					cout << "trans = " << endl << " "  << trans << endl << endl;
+					cout << "Value in " << endl << " "  << val << endl << endl;
 
-					// printf("before swaps\n");
-					// cout << "a = " << endl << " "  << a << endl << endl;
-					// cout << "b = " << endl << " "  << b << endl << endl;
-				//}
+					printf("orig\n");
+					cout << "a = " << endl << " "  << a << endl << endl;
+					cout << "b = " << endl << " "  << b << endl << endl;
+				}
 
 				i++;
 			}
@@ -238,8 +238,35 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 
 			}
 
+			// intensity is basically the inertia
+			// of your changes to remain in effect after 
+			// the jpeg is put back together and compressed 
+			if (a > b)
+			{
+				auto d = (intensity - (a - b)) / 2;
+				     a = a + d;
+				     b = b - d;
+			}
+			else
+			{
+				auto d = (intensity - (b - a)) / 2;
+				     a = a - d;
+				     b = b + d;
+			}
+
 			trans.at<float>(x_1, x_2) = a;
 			trans.at<float>(y_1, y_2) = b;
+
+			if ( (x <= 1) && (y <= 16) ) {
+
+					// printf("this iteration %d:\n", count_blocks);
+					// cout << "trans = " << endl << " "  << trans << endl << endl;
+					// cout << "Value in " << endl << " "  << val << endl << endl;
+
+					printf("after\n");
+					cout << "a = " << endl << " "  << a << endl << endl;
+					cout << "b = " << endl << " "  << b << endl << endl;
+				}
 
 			Mat stego(Size(block_width, block_height), block.type());
 
@@ -307,11 +334,12 @@ inline std::string decode_dct(const cv::Mat& img, int channel = 0)
 	split(imgfp, planes);
 
 
-
+	int count_blocks = 0;
 	for (int x = 1; x < grid_width; x++)
 	{
 		for (int y = 1; y < grid_height; y++)
 		{
+			count_blocks++;
 			auto px = (x - 1) * block_width;
 			auto py = (y - 1) * block_height;
 
@@ -337,14 +365,15 @@ inline std::string decode_dct(const cv::Mat& img, int channel = 0)
 			}
 
 
-			// if ( (x <= 1) && (y <= 4) ) {
+			if ( (x <= 1) && (y <= 16) ) {
 
-			// 	// printf("this item:\n");
-			// 	// cout << "trans = " << endl << " "  << trans << endl << endl;
-			// 	// cout << "Value OUT " << endl << " "  << val << endl << endl;
-			// 	// cout << "a = " << endl << " "  << a << endl << endl;
-			// 	// cout << "b = " << endl << " "  << b << endl << endl;
-			// }
+				// printf("this item:\n");
+				printf("this iteration %d:\n", count_blocks);
+				cout << "trans = " << endl << " "  << trans << endl << endl;
+				cout << "Value OUT " << endl << " "  << val << endl << endl;
+				cout << "a = " << endl << " "  << a << endl << endl;
+				cout << "b = " << endl << " "  << b << endl << endl;
+			}
 
 			i++;
 		}
