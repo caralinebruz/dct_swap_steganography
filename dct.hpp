@@ -86,6 +86,21 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 	// grid width = 64
 	// grid height = 64
 
+	// init file object
+	bool print_coeffs = true;
+		// if (print_coeffs == true) {
+
+		// 	ofstream ofs("./out/orig_coefficients.txt", ofstream::trunc);
+
+		// 			ofstream myfile;
+		// 			myfile.open("./out/orig_coefficients.txt");
+		// 			myfile << trans;
+		// 			myfile.close();
+
+
+		// }
+
+
 	int count_blocks = 0;
 	for (int x = 1; x < grid_width; x++)
 	{
@@ -136,17 +151,10 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 			int val = 0;
 			if (i < size)
 			{
-
-				// auto t1 = i % 8;
-				// value in [0,1]
-				// val = (text[i / 8] & 1 << i % 8) >> i % 8;
-
-
 				if (!myqueue.empty()) {
 
 					val = myqueue.front();
 					myqueue.pop();
-
 
 				} else {
 					// printf("queue is emtpy...");
@@ -161,24 +169,34 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 					}
 				}
 
-				// if ( (x <= 1) && (y <= 4) ) {
-				// 	// print it.
-				// 	// ofstream myfile;
-				// 	// myfile.open("./out/example.txt");
-				// 	// myfile << "Writing this to a file.\n";
-				// 	// myfile << "M = ";
-				// 	// myfile << trans;
-				// 	// myfile.close();
-
-				// 	// printf("this item:\n");
-				// 	// cout << "trans = " << endl << " "  << trans << endl << endl;
-				// 	// cout << "Value in " << endl << " "  << val << endl << endl;
-
-				// 	// printf("before swaps\n");
-				// 	// cout << "a = " << endl << " "  << a << endl << endl;
-				// 	// cout << "b = " << endl << " "  << b << endl << endl;
-				// }
 				
+				
+				// if (print_coeffs == true) {
+
+				// 	ofstream myfile;
+				// 	myfile.open("./out/orig_coefficients.txt", ios_base::app); // append mode
+				// 	myfile << trans;
+				// 	myfile.close();
+				// }
+
+				//if ( (x <= 1) && (y <= 4) ) {
+					// print it.
+					// ofstream myfile;
+					// myfile.open("./out/example.txt");
+					// myfile << "Writing this to a file.\n";
+					// myfile << "M = ";
+					// myfile << trans;
+					// myfile.close();
+
+					// printf("this item:\n");
+					// cout << "trans = " << endl << " "  << trans << endl << endl;
+					// cout << "Value in " << endl << " "  << val << endl << endl;
+
+					// printf("before swaps\n");
+					// cout << "a = " << endl << " "  << a << endl << endl;
+					// cout << "b = " << endl << " "  << b << endl << endl;
+				//}
+
 				i++;
 			}
 
@@ -236,6 +254,10 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 		}
 	}
 
+	// if (print_coeffs == true) {
+
+	// }
+
 	Mat mergedfp;
 	merge(planes, mergedfp);
 
@@ -272,6 +294,8 @@ inline std::string decode_dct(const cv::Mat& img, int channel = 0)
 	int y_2 = 2;
 
 	auto i = 0;
+
+
 	string bin = "";
 	string bits(grid_width * grid_height / 8, 0);
 	// cout << "bits" << endl << " "  << bits << endl << endl;

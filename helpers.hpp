@@ -74,6 +74,22 @@ int binaryToDecimal(std::string n)
     return dec_value;
 }
 
+
+char strToChar_1(const char* str) {
+	using namespace std;
+    char parsed = 0;
+    for (int i = 0; i < 8; i++) {
+        if (str[i] == '1') {
+            parsed |= 1 << (7 - i);
+        }
+    }
+    return parsed;
+}
+
+
+
+
+
 std::string setStringtoASCII(std::string str)
 {
 	using namespace std;
@@ -119,6 +135,38 @@ std::string setStringtoASCII(std::string str)
     return res;
 }
 
+
+// this one is working ok.
+void text_to_binary_1(std::string word) {
+	using namespace std;
+	char letter = ' ';
+
+    ofstream myfile;
+    myfile.open("./test/example_binary.txt");
+
+	cout << "\nThe String Value For '" << word << "' Is \n";
+
+	for (unsigned int wordPosition = 0; wordPosition < word.size(); ++wordPosition){
+
+	        letter = word[wordPosition];
+
+	        bitset <8> binary(letter);
+
+	        cout << binary;
+	        //myfile << binary << " ";
+	        myfile << binary;
+
+	        // string test = setStringtoASCII(binary);
+	       	// char test = strToChar_1(binary);
+	        // printf(test);
+	        }
+
+	myfile.close();
+}
+
+
+
+
 // std::vector<int> strToBinary(std::string s)
 // {
 // 	std::vector<int> stringvals;
@@ -151,6 +199,34 @@ std::string setStringtoASCII(std::string str)
 //     }
 //     return stringvals;
 //}
+
+std::string toBinary(int n) {
+	using namespace std;
+    string r;
+    while ( n!=0 ){
+        r += ( n % 2 == 0 ? "0" : "1" );
+        n /= 2;
+    }
+    return r;
+}
+
+
+void convert_to_binary(std::string str) {
+	using namespace std;
+
+    str = "hello";
+    ofstream myfile;
+    myfile.open("./test/example_binary.txt");
+
+    for (int i = 0; i < str.length(); ++i) {
+        cout << toBinary(str[i]) << " ";
+        //myfile << toBinary(str[i]) << " ";
+
+        if (i % 6 == 0 && i != 0)
+            cout << endl;
+    }
+    myfile.close();
+}
 
 
 std::vector<int> TextToBinaryString(std::string words) {

@@ -103,8 +103,8 @@ void display_before_after(Mat y, Mat cr, Mat cb, Mat g, Mat stega_y, Mat stega_c
 	Mat c_stega_cb = merge_cb(stega_cb,g);
 
 
-	imwrite("out/luminance.jpg", y, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
-	imwrite("out/luminance_dct.jpg", stega_y, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	// imwrite("out/luminance.jpg", y, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	// imwrite("out/luminance_dct.jpg", stega_y, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
 
 
 	imshow("luminance before", c_y);
@@ -117,6 +117,21 @@ void display_before_after(Mat y, Mat cr, Mat cb, Mat g, Mat stega_y, Mat stega_c
 
 	waitKey(0);
 	destroyAllWindows();//closing all windows//
+
+}
+
+
+void write_original_channels(Mat y, Mat cr, Mat cb, Mat g) {
+	// display
+	// unaltered image channels
+	Mat c_y = merge_y(y,g);
+	Mat c_cr = merge_cr(cr,g);
+	Mat c_cb = merge_cb(cb,g);
+
+	imwrite("out/lena_orig_luminance.jpg", c_y, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	imwrite("out/lena_orig_cr.jpg", c_cr, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	imwrite("out/lena_orig_cb.jpg", c_cb, vector<int> { IMWRITE_JPEG_QUALITY, 99 });
+	cout << endl << "  " << Format::Green << Format::Bold << "Success:" << Format::Normal << Format::Default << " Altered image written." << endl;
 
 }
 
@@ -142,11 +157,11 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	cvtColor(img, ycbcr, COLOR_BGR2YCrCb);
 
 	// // 1b. split channels
-	// Mat channels[3];
-	// split(ycbcr, channels);//splitting images into 3 different channels//  
-	// Mat y = channels[0];
-	// Mat cr = channels[1];
-	// Mat cb = channels[2];
+	Mat channels[3];
+	split(ycbcr, channels);//splitting images into 3 different channels//  
+	Mat y = channels[0];
+	Mat cr = channels[1];
+	Mat cb = channels[2];
 	// do work
 
 	// based on the channel they selected, encode that channel
@@ -157,6 +172,26 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	// try to convert the string to binary first
 	// string binstring = TextToBinaryString(secret);
 	// vector<int> binstring = strToBinary(secret);
+
+
+	////https://www.delftstack.com/howto/cpp/convert-string-to-binary-in-cpp/
+	// first COUT binary string to text file
+	// confirm the text file can be converted back, and is correct. via web:
+	// https://www.rapidtables.com/convert/number/binary-to-ascii.html
+	string s = "Hi";
+	convert_to_binary(s);
+
+	// this writes to a file the binary string
+	text_to_binary_1(s);
+	// now, read the file.
+	string binfile = ("./test/example_binary.txt");
+	string binst = read_file(binfile);
+	string response = setStringtoASCII(binst);
+	printf("\n\nTESTING\n\n");
+	cout << response;
+
+
+	// char q = strToChar_1();
 
 	vector<int> binstring = TextToBinaryString(secret);
 
@@ -230,11 +265,12 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	// Mat stego_cb = stego_channels[2];
 
 	// // create a midgray to use to display chrominance channels nicely
-	// Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
+	Mat g = Mat(Size(img.rows, img.cols), CV_8UC1, 128);
 
 
 	// // display unaltered image in each color channel.
 	// //display_split_channels(y, cr, cb, g);
+	write_original_channels(y,cr,cb,g);
 
 	// display_before_after(y, cr, cb, g, stego_y, stego_cr, stego_cb);
 
