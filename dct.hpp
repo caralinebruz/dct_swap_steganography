@@ -68,10 +68,10 @@ inline cv::Mat encode_dct(const cv::Mat& img, std::vector<int> text, int mode = 
 
 	// }
 	// else {
-	// 	x_1 = 2;
-	// 	x_2 = 3;
-	// 	y_1 = 1;
-	// 	y_2 = 5;
+	// 	x_1 = 3;
+	// 	x_2 = 2;
+	// 	y_1 = 2;
+	// 	y_2 = 3;
 
 	// }
 
@@ -330,10 +330,10 @@ inline std::string decode_dct(const cv::Mat& img, int channel = 0)
 
 	// }
 	// else {
-	// 	x_1 = 2;
-	// 	x_2 = 3;
-	// 	y_1 = 1;
-	// 	y_2 = 5;
+	// 	x_1 = 3;
+	// 	x_2 = 2;
+	// 	y_1 = 2;
+	// 	y_2 = 3;
 
 	// }
 

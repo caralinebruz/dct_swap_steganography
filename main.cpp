@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <sstream>
 #include <bitset>
+#include <string.h>
 
 #if _WIN32
 	#include <conio.h>
@@ -202,6 +203,63 @@ void write_original_channels(Mat y, Mat cr, Mat cb, Mat g) {
 }
 
 
+void validate(string input, string extracted) {
+
+	int il = input.length();
+	int num_changes = 0;
+
+	if (input == extracted) {
+		printf("100 pct equal\n");
+	} else {
+
+		
+		
+		int el = extracted.length();
+
+		if (il != el) {
+			printf("strings are diff length ..\n");
+
+			if (il > el) {
+				printf("input is longer");
+			}
+			else {
+				printf("extracted is longer\n");
+				string ext = extracted.substr(0,il);
+				// auto result = std::bitset<32>(input) ^ std::bitset<32>(ext);
+   				// cout << result << std::endl;
+   				for(int i = 0; i<il; i++) {
+
+   					cout << input[i] << " ";
+   					cout << ext[i] << endl;
+
+   					if (input[i] != ext[i]) {
+   						num_changes++;
+   					}
+   				}
+			}
+		}
+		else {
+
+
+
+			// auto result = std::bitset<32>(input) ^ std::bitset<32>(extracted);
+   			// cout << result << std::endl;
+
+		}
+
+
+
+	}
+
+	cout << il << endl;
+	float percentage =(num_changes/il);
+
+	cout << "num changes" << num_changes << endl;
+	cout << "percentage:" << percentage << endl;
+
+}
+
+
 
 int do_stuff(const string& inputfile, string secretfile, int channel) {
 	// parse input image 
@@ -235,22 +293,6 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	string secret = read_file(secretfile);
 	printf("string: %s \n", secret.c_str());
 
-	// try to convert the string to binary first
-	// string binstring = TextToBinaryString(secret);
-	// vector<int> binstring = strToBinary(secret);
-
-
-	////https://www.delftstack.com/howto/cpp/convert-string-to-binary-in-cpp/
-	// first COUT binary string to text file
-	// confirm the text file can be converted back, and is correct. via web:
-	// https://www.rapidtables.com/convert/number/binary-to-ascii.html
-	// string s = "Hi";
-	// convert_to_binary(s);
-
-
-
-
-
 
 	// this writes to a file the binary string
 	text_to_binary_1(secret);
@@ -261,11 +303,6 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	cout << "\n testing \n";
 	read_random_file(binfile);
 	cout << "\n done \n";
-
-	// // string binst = read_file(binfile);
-	// string response = setStringtoASCII(binst);
-	// printf("\n\nTESTING\n\n");
-	// cout << response;
 
 
 	// STORE_ONCE   1 = Stores the specified input once.
@@ -280,7 +317,6 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	// by too much to get noticed by statistical analysis.
 
 	// if i make the compression 100 percent quality, do i need persistence?
-
 	// compression percentage
 
 	//auto store = STORE_REPEAT, persistence = 30;
@@ -347,6 +383,8 @@ int do_stuff(const string& inputfile, string secretfile, int channel) {
 	write_original_channels(y,cr,cb,g);
 
 	// display_before_after(y, cr, cb, g, stego_y, stego_cr, stego_cb);
+
+	validate(secret,data);
 
 
 
